@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import uniVerse.posterPlot.repository.UserRepository;
+import uniVerse.posterPlot.util.RedisUtil;
 
 import java.util.Random;
 
@@ -15,14 +16,13 @@ import java.util.Random;
 public class MailSendService {
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
-
-    @Autowired
-    private RedisUtil redisUtil;
+    private final RedisUtil redisUtil;
     private int authNumber;
 
-    public MailSendService(JavaMailSender mailSender, UserRepository userRepository) {
+    public MailSendService(JavaMailSender mailSender, UserRepository userRepository, RedisUtil redisUtil) {
         this.mailSender = mailSender;
         this.userRepository = userRepository;
+        this.redisUtil = redisUtil;
     }
 
     //임의의 6자리 양수를 반환합니다.
