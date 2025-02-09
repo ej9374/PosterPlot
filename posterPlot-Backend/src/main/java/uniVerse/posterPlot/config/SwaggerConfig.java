@@ -1,9 +1,14 @@
 package uniVerse.posterPlot.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.info.Info;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.LinkedHashMap;
 
 @Configuration
 public class SwaggerConfig {
@@ -17,5 +22,4 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(info);
     }
-
 }
