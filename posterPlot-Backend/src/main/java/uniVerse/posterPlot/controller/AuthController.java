@@ -17,6 +17,7 @@ import uniVerse.posterPlot.dto.LoginRequestDto;
 import uniVerse.posterPlot.dto.SignUpRequestDto;
 import uniVerse.posterPlot.service.AuthService;
 import uniVerse.posterPlot.service.MailSendService;
+import uniVerse.posterPlot.util.JwtProvider;
 
 @RequiredArgsConstructor
 @RestController
@@ -27,6 +28,7 @@ public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private final AuthService authService;
     private final MailSendService mailService;
+    private final JwtProvider jwtProvider;
 
     //아이디 중복 확인
     @Operation(summary = "아이디 중복 확인", description = "아이디가 이미 존재하는지 확인합니다.")
@@ -106,8 +108,12 @@ public class AuthController {
     public ResponseEntity<String> login(@RequestBody @Valid LoginRequestDto loginRequestDto) {
         try {
             authService.login(loginRequestDto);
+
+            // Jwt 생성
+            String jwt = jwtProvider.create(loginRequestDto.getId());
+
             log.info("login is success: {}", loginRequestDto.getId());
-            return ResponseEntity.ok("로그인 성공");
+            return ResponseEntity.ok(jwt);
         } catch (IllegalArgumentException e) {
             log.error("로그인 실패: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

@@ -1,4 +1,4 @@
-package uniVerse.posterPlot.service;
+package uniVerse.posterPlot.util;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
