@@ -74,7 +74,7 @@ public class AuthController {
     }
 
     //비밀번호 확인
-    @Operation(summary = "비밀번호 확인", description = "비밀번호와 확인 비밀번호가 일치하는지 확인합니다.")
+    @Operation(summary = "비밀번호 확인", description = "비밀번호와 비밀번호 확인이 일치하는지 확인합니다.")
     @GetMapping("/checkPassword")
     public ResponseEntity<String> checkPassword(
             @Parameter(name = "password", description = "비밀번호", example = "password123") @RequestParam("password") String password
