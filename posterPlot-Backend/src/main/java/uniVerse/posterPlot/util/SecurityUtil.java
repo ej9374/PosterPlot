@@ -6,7 +6,7 @@ import uniVerse.posterPlot.entity.UserEntity;
 
 public class SecurityUtil {
 
-    public static Integer getAuthenticatedUserId() {
+    public static UserEntity getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null) {
@@ -21,6 +21,6 @@ public class SecurityUtil {
             throw new RuntimeException("인증된 사용자 정보를 찾을 수 없습니다.");
         }
 
-        return ((UserEntity) authentication.getPrincipal()).getUserId();
+        return (UserEntity) authentication.getPrincipal();
     }
 }

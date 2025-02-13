@@ -6,7 +6,6 @@ import uniVerse.posterPlot.entity.PostEntity;
 
 import java.util.List;
 
-@Repository
 public interface PostRepository {
 
     public void save(PostEntity post);
@@ -18,6 +17,8 @@ public interface PostRepository {
     public List<Integer> findAllOldest();
 
     public List<Integer> findAllByLikes();
+
+    public List<Integer> findTopLikesPost();
 
     public List<Integer> findAllByUserId(Integer userId);
 

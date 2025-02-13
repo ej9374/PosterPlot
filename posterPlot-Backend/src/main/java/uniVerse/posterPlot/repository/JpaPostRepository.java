@@ -38,7 +38,14 @@ public class JpaPostRepository implements PostRepository {
 
     @Override
     public List<Integer> findAllByLikes() {
-        return em.createQuery("select p.postId from PostEntity p order by p.totalLikes des", Integer.class)
+        return em.createQuery("select p.postId from PostEntity p order by p.totalLikes desc", Integer.class)
+                .getResultList();
+    }
+
+    @Override
+    public List<Integer> findTopLikesPost() {
+        return em.createQuery("select p.postId from PostEntity p where p.totalLikes >= 10 order by p.totalLikes desc", Integer.class)
+                .setMaxResults(3)
                 .getResultList();
     }
 
