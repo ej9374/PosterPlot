@@ -1,5 +1,7 @@
 package uniVerse.posterPlot.filter;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,20 +34,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String token = extractToken(request);
 
-        if (token != null) {
-            String id = jwtProvider.validate(token); // id 반환
-            if (id != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                userRepository.findById(id).ifPresent(user -> {
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        try {
+            if (token != null) {
+                String id = jwtProvider.validate(token); // id 반환
+                if (id != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    userRepository.findById(id).ifPresent(user -> {
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    log.debug("인증 성공: id={}", id);
-                });
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                        log.debug("인증 성공: id={}", id);
+                    });
+                }
             }
+            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException e){
+            log.warn("Jwt 토큰 만료: {}", e.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        } catch (JwtException e) {
+            log.warn("유효하지 않는 Jwt 토큰: {}", e.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         }
-        filterChain.doFilter(request, response);
     }
 
     private String extractToken(HttpServletRequest request) {
