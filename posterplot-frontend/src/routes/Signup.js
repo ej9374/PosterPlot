@@ -13,6 +13,7 @@ function Signup() {
     passwordConfirm: "",
   });
 
+  const [isIdDuplicated, setIsIdDuplicated] = useState(null);
   const [error, setError] = useState("");
 
   // 아이디, 이메일, 비밀번호, 비밀번호 확인
@@ -23,6 +24,28 @@ function Signup() {
       [name]: value,
     }));
   };
+
+  // 아이디 중복 체크
+  const checkIdAvailability = async (id) => {
+    try {
+      const response = await axios.get(`checkId?id=${id}`, {
+        id: userInfo.id,
+      });
+      if (response.status === 200) {
+        // 아이디 사용 가능
+        setIsIdDuplicated(false);
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        // 아이디 중복
+        setIsIdDuplicated(true);
+      } else {
+        console.error("아이디 중복 확인 실패:", error);
+        setIsIdDuplicated(null); // 오류 발생 시 상태를 null로 설정
+      }
+    }
+  };
+
   // 6자 이상 20자 이하, 알파벳 대소문자와 숫자만 포함하는 경우 true 리턴
   const idValid = /^(?=.*[a-zA-Z])[a-zA-Z0-9]{6,20}$/.test(userInfo.id);
 
@@ -70,7 +93,12 @@ function Signup() {
               value={userInfo.id}
               name="id"
             />
-            <button disabled={!idValid}>중복확인</button>
+            <button onClick={checkIdAvailability} disabled={!idValid}>
+              중복확인
+            </button>
+            {isIdDuplicated === null && <p>아이디를 입력해주세요.</p>}
+            {isIdDuplicated === false && <p>사용 가능한 아이디입니다.</p>}
+            {isIdDuplicated === true && <p>이미 사용 중인 아이디입니다.</p>}
           </div>
           <div style={{ margin: "10px" }}>
             <label class={`${input.greetingLabel}`}>이메일</label>
