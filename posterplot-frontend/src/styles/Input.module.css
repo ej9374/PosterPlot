@@ -1,0 +1,11 @@
+.greetingInput {
+  width: 400px;
+  height: 30px;
+  font-size: 17px;
+  border: 1px solid;
+}
+
+.greetingLabel {
+  width: 150px;
+  display: inline-block; /* 라벨과 버튼이 같은 라인에 올 수 있게 함 */
+}
