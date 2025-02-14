@@ -1,6 +1,9 @@
 import React from "react";
 import { useState, useEffect } from "react";
 
+import display from "../styles/Display.module.css";
+import input from "../styles/Input.module.css";
+
 function Signup() {
   // 유저 정보
   const [userInfo, setUserInfo] = useState({
@@ -21,7 +24,7 @@ function Signup() {
     }));
   };
   // 6자 이상 20자 이하, 알파벳 대소문자와 숫자만 포함하는 경우 true 리턴
-  const idValid = /^[a-zA-Z0-9]{6,20}$/.test(userInfo.id);
+  const idValid = /^(?=.*[a-zA-Z])[a-zA-Z0-9]{6,20}$/.test(userInfo.id);
 
   // 이메일 형태를 가진 경우 true 리턴
   const emailValid = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
@@ -47,29 +50,32 @@ function Signup() {
   };
 
   return (
-    <div>
-      <h1>회원가입</h1>
+    <div class={display.xyCenter}>
+      <h1 class={`${display.titleFont}`} align="center">
+        회원가입
+      </h1>
       <div>
-        <form onChange={handleInputChange} onSubmit={handleSubmit}>
-          <div>
-            <label>아이디</label>
+        <form
+          class={`${display.nameFont}`}
+          onChange={handleInputChange}
+          onSubmit={handleSubmit}
+        >
+          <div style={{ margin: "10px" }}>
+            <label class={`${input.greetingLabel}`}>아이디</label>
             <input
+              class={input.greetingInput}
               type="text"
               placeholder="6자 이상의 영문 혹은 영문과 숫자를 조합"
               maxLength={20}
               value={userInfo.id}
               name="id"
             />
-            <p>**6자 이상 20자 이하</p>
-            <p>**알파벳 및 숫자만 포함</p>
             <button disabled={!idValid}>중복확인</button>
           </div>
-          <div>
-            <label>이메일</label>
-            <p>
-              아이디 및 패스워드 분실 시 이메일을 통해 본인인증을 진행합니다
-            </p>
+          <div style={{ margin: "10px" }}>
+            <label class={`${input.greetingLabel}`}>이메일</label>
             <input
+              class={input.greetingInput}
               type="email"
               placeholder="예: posterplot@plot.com"
               value={userInfo.email}
@@ -77,12 +83,18 @@ function Signup() {
             />
             <button disabled={!emailValid}>인증번호 받기</button>
           </div>
-          <div>
-            <input type="string" placeholder="인증번호를 입력해주세요" />
-          </div>
-          <div>
-            <label>비밀번호</label>
+          <div style={{ margin: "10px" }}>
             <input
+              class={input.greetingInput}
+              style={{ marginLeft: "150px" }}
+              type="string"
+              placeholder="인증번호를 입력해주세요"
+            />
+          </div>
+          <div style={{ margin: "10px" }}>
+            <label class={`${input.greetingLabel}`}>비밀번호</label>
+            <input
+              class={input.greetingInput}
               type="password"
               placeholder="비밀번호를 입력해주세요"
               maxLength={20}
@@ -91,23 +103,30 @@ function Signup() {
             />
             {passwordValid && <p>유효한 패스워드</p>}
           </div>
-          <div>
-            <label>비밀번호 확인</label>
+          <div style={{ margin: "10px" }}>
+            <label class={`${input.greetingLabel}`}>비밀번호 확인</label>
             <input
+              class={input.greetingInput}
               type="password"
               placeholder="비밀번호를 한번 더 입력해주세요"
               maxLength={20}
               value={userInfo.passwordConfirm}
               name="passwordConfirm"
             />
-            {userInfo.password !== userInfo.passwordConfirm && (
-              <p>비밀번호가 일치하지 않습니다</p>
-            )}
+            <div style={{ marginLeft: "150px" }}>
+              {userInfo.password === userInfo.passwordConfirm ? (
+                <p>비밀번호가 일치합니다</p>
+              ) : (
+                <p>비밀번호가 일치하지 않습니다</p>
+              )}
+            </div>
           </div>
         </form>
-        <button disabled={!isVaild} type="submit">
-          가입하기
-        </button>
+        <div align="center">
+          <button disabled={!isVaild} type="submit">
+            가입하기
+          </button>
+        </div>
       </div>
     </div>
   );
