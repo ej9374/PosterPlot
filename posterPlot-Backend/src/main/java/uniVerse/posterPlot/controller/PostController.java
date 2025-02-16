@@ -3,6 +3,7 @@ package uniVerse.posterPlot.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uniVerse.posterPlot.dto.PostListResponseDto;
@@ -26,8 +27,13 @@ public class PostController {
     @Operation(summary = "게시글 작성", description = "유저가 새로운 게시글을 작성합니다.")
     @PostMapping("/create")
     public ResponseEntity<String> createPost(@Valid @RequestBody PostRequestDto requestDto){
-        UserEntity user = SecurityUtil.getAuthenticatedUser();
-        postService.createPost(user, requestDto);
+        try {
+            UserEntity user = SecurityUtil.getAuthenticatedUser();
+            postService.createPost(user, requestDto);
+            return ResponseEntity.ok("게시글이 성공적으로 작성되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 에러가 발생했습니다.");
+        }
     }
 
     @GetMapping("/{postId}")
