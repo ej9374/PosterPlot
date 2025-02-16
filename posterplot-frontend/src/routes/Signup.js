@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 import display from "../styles/Display.module.css";
 import input from "../styles/Input.module.css";
@@ -28,21 +29,19 @@ function Signup() {
   // 아이디 중복 체크
   const checkIdAvailability = async (id) => {
     try {
-      const response = await axios.get(`checkId?id=${id}`, {
-        id: userInfo.id,
+      const response = await axios.get(`http://localhost:8080/checkId`, {
+        params: { id: userInfo.id },
       });
       if (response.status === 200) {
-        // 아이디 사용 가능
-        setIsIdDuplicated(false);
+        setIsIdDuplicated(false); // 중복되지 않는 아이디
+      } else if (response.status === 409) {
+        setIsIdDuplicated(true);  // 중복된 아이디
+      } else {
+        setIsIdDuplicated(null);
       }
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        // 아이디 중복
-        setIsIdDuplicated(true);
-      } else {
-        console.error("아이디 중복 확인 실패:", error);
-        setIsIdDuplicated(null); // 오류 발생 시 상태를 null로 설정
-      }
+      console.error("Error checking ID:", error);
+      setIsIdDuplicated(null);
     }
   };
 
