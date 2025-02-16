@@ -1,18 +1,16 @@
----
 openapi: 3.0.1
 info:
   title: PosterPlot API
-  description: AI 기반 줄거리 생성과 유저 작성 시나리오를 바탕으로, 유사 영화 추천 및 시나리오 열람 기능을 제공하는 웹 플랫폼 프로젝트
-    API
+  description: 'AI 기반 줄거리 생성과 유저 작성 시나리오를 바탕으로, 유사 영화 추천 및 시나리오 열람 기능을 제공하는 웹 플랫폼 프로젝트 API'
   version: v1.0
 servers:
-  - url: http://localhost:8080
+  - url: 'http://localhost:8080'
     description: Generated server url
 tags:
   - name: AuthController
     description: AuthController API 목록
 paths:
-  "/auth/signUp":
+  /auth/signUp:
     post:
       tags:
         - AuthController
@@ -23,16 +21,22 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/SignUpRequestDto"
+              $ref: '#/components/schemas/SignUpRequestDto'
         required: true
       responses:
         '200':
-          description: OK
+          description: 회원가입 성공
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: string
-  "/auth/mailSend":
+        '500':
+          description: 서버 에러가 발생했습니다.
+          content:
+            '*/*':
+              schema:
+                type: string
+  /auth/mailSend:
     post:
       tags:
         - AuthController
@@ -49,12 +53,24 @@ paths:
           example: user123@gmail.com
       responses:
         '200':
-          description: OK
+          description: 이메일로 인증 번호가 전송되었습니다.
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: string
-  "/auth/login":
+        '409':
+          description: 이미 사용 중인 이메일입니다.
+          content:
+            '*/*':
+              schema:
+                type: string
+        '500':
+          description: 서버 에러가 발생했습니다.
+          content:
+            '*/*':
+              schema:
+                type: string
+  /auth/login:
     post:
       tags:
         - AuthController
@@ -65,16 +81,22 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/LoginRequestDto"
+              $ref: '#/components/schemas/LoginRequestDto'
         required: true
       responses:
         '200':
-          description: OK
+          description: 로그인이 성공하여 jwt 토큰을 출력합니다.
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: string
-  "/auth/mailAuthCheck":
+        '401':
+          description: 아이디 또는 비밀번호가 옳지 않습니다.
+          content:
+            '*/*':
+              schema:
+                type: string
+  /auth/mailAuthCheck:
     get:
       tags:
         - AuthController
@@ -86,15 +108,21 @@ paths:
           in: query
           required: true
           schema:
-            "$ref": "#/components/schemas/EmailCheckDto"
+            $ref: '#/components/schemas/EmailCheckDto'
       responses:
         '200':
-          description: OK
+          description: 인증 번호가 일치합니다.
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: string
-  "/auth/checkPassword":
+        '400':
+          description: 인증 번호가 일치하지 않습니다.
+          content:
+            '*/*':
+              schema:
+                type: string
+  /auth/checkPassword:
     get:
       tags:
         - AuthController
@@ -118,12 +146,18 @@ paths:
           example: password123
       responses:
         '200':
-          description: OK
+          description: 사용 가능한 비밀번호입니다.
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: string
-  "/auth/checkId":
+        '400':
+          description: 비밀번호가 일치하지 않습니다.
+          content:
+            '*/*':
+              schema:
+                type: string
+  /auth/checkId:
     get:
       tags:
         - AuthController
@@ -140,9 +174,15 @@ paths:
           example: user123
       responses:
         '200':
-          description: OK
+          description: 사용 가능한 아이디입니다.
           content:
-            "*/*":
+            '*/*':
+              schema:
+                type: string
+        '409':
+          description: 아이디가 이미 존재합니다.
+          content:
+            '*/*':
               schema:
                 type: string
 components:
