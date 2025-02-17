@@ -17,34 +17,6 @@ function Signup() {
   const [isIdDuplicated, setIsIdDuplicated] = useState(null);
   const [error, setError] = useState("");
 
-  // 아이디, 이메일, 비밀번호, 비밀번호 확인
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setUserInfo((userInfo) => ({
-      ...userInfo,
-      [name]: value,
-    }));
-  };
-
-  // 아이디 중복 체크
-  const checkIdAvailability = async (id) => {
-    try {
-      const response = await axios.get(`http://localhost:8080/checkId`, {
-        params: { id: userInfo.id },
-      });
-      if (response.status === 200) {
-        setIsIdDuplicated(false); // 중복되지 않는 아이디
-      } else if (response.status === 409) {
-        setIsIdDuplicated(true);  // 중복된 아이디
-      } else {
-        setIsIdDuplicated(null);
-      }
-    } catch (error) {
-      console.error("Error checking ID:", error);
-      setIsIdDuplicated(null);
-    }
-  };
-
   // 6자 이상 20자 이하, 알파벳 대소문자와 숫자만 포함하는 경우 true 리턴
   const idValid = /^(?=.*[a-zA-Z])[a-zA-Z0-9]{6,20}$/.test(userInfo.id);
 
@@ -60,10 +32,39 @@ function Signup() {
 
   // isVaild 변수 (boolean)
   const isVaild =
-    idValid &&
-    emailValid &&
+    idValid && // 올바른 형태의 아이디인가?
+    isIdDuplicated === false && // 아이디가 중복되었는가?
+    emailValid && // 올바른 형태의 이메일인가?
     passwordValid &&
     userInfo.password === userInfo.passwordConfirm;
+
+  // 유저 정보 입력
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setUserInfo((userInfo) => ({
+      ...userInfo,
+      [name]: value,
+    }));
+  };
+
+  // 아이디 중복 체크
+  const checkIdAvailability = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/auth/checkId`, {
+        params: { id: userInfo.id },
+      });
+      if (response.status === 200) {
+        setIsIdDuplicated(false); // 중복되지 않는 아이디
+      } else if (response.status === 409) {
+        setIsIdDuplicated(true); // 중복된 아이디
+      } else {
+        setIsIdDuplicated(null);
+      }
+    } catch (error) {
+      console.error("Error checking ID:", error);
+      setIsIdDuplicated(null);
+    }
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
