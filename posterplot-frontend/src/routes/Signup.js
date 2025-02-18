@@ -89,11 +89,33 @@ function Signup() {
     }
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log("회원가입 제출");
-    // 서버에서 전송한 인증번호와 사용자가 입력한 인증번호가 일치하는가?
-    // 여기에서 회원가입 API 호출 로직을 작성
+  const handleSignUp = async () => {
+    // 인증번호(code) 검증
+    /* if (userInfo.code !== verificationCode) {
+      // TODO: 수정하기
+      alert("인증번호가 일치하지 않습니다.");
+      return;
+    }*/
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/auth/signUp",
+        userInfo,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        alert("회원가입이 완료되었습니다!");
+        // TODO: 회원가입 성공 후 로그인 페이지로 이동 등 추가 작업
+      }
+    } catch (error) {
+      console.error("회원가입 실패:", error.response?.data || error.message);
+      alert(`회원가입 실패: ${error.response?.data || "서버 오류"}`);
+    }
   };
 
   return (
@@ -102,11 +124,7 @@ function Signup() {
         회원가입
       </h1>
       <div>
-        <form
-          class={`${display.nameFont}`}
-          onChange={handleInputChange}
-          onSubmit={handleSubmit}
-        >
+        <form class={`${display.nameFont}`} onChange={handleInputChange}>
           <div style={{ margin: "10px" }}>
             <label class={`${input.greetingLabel}`}>아이디</label>
             <input
@@ -186,7 +204,7 @@ function Signup() {
           </div>
         </form>
         <div align="center">
-          <button disabled={!isVaild} type="submit">
+          <button disabled={!isVaild} onClick={handleSignUp}>
             가입하기
           </button>
         </div>
