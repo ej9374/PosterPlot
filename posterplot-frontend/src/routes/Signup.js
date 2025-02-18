@@ -10,6 +10,7 @@ function Signup() {
   const [userInfo, setUserInfo] = useState({
     id: "",
     email: "",
+    code: "",
     password: "",
     passwordConfirm: "",
   });
@@ -35,8 +36,8 @@ function Signup() {
     idValid && // 올바른 형태의 아이디인가?
     isIdDuplicated === false && // 아이디가 중복되었는가?
     emailValid && // 올바른 형태의 이메일인가?
-    passwordValid &&
-    userInfo.password === userInfo.passwordConfirm;
+    passwordValid && // 올바른 형태의 비밀번호인가?
+    userInfo.password === userInfo.passwordConfirm; // 비밀번호와 비밀번호 확인에 입력한 내용이 일치하는가?
 
   // 유저 정보 입력
   const handleInputChange = (event) => {
@@ -51,7 +52,7 @@ function Signup() {
   const checkIdAvailability = async (id) => {
     try {
       const response = await axios.get(`http://localhost:8080/auth/checkId`, {
-        params: { id: userInfo.id },
+        params: { id: id },
       });
       if (response.status === 200) {
         setIsIdDuplicated(false); // 중복되지 않는 아이디
@@ -66,9 +67,32 @@ function Signup() {
     }
   };
 
+  const sendVerificationEmail = async (email) => {
+    try {
+      console.log(email);
+      const response = await axios.post(
+        "http://localhost:8080/auth/mailSend",
+        null,
+        {
+          params: { email: email },
+        }
+      );
+      if (response.status === 200) {
+        alert("인증번호가 발송되었습니다."); // 이메일 전송 완료
+      } else if (response.status === 409) {
+        alert("이미 사용중인 이메일입니다."); // 중복된 이메일
+      } else {
+        console.log("오류");
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+    }
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log("회원가입 제출");
+    // 서버에서 전송한 인증번호와 사용자가 입력한 인증번호가 일치하는가?
     // 여기에서 회원가입 API 호출 로직을 작성
   };
 
@@ -93,7 +117,10 @@ function Signup() {
               value={userInfo.id}
               name="id"
             />
-            <button onClick={checkIdAvailability} disabled={!idValid}>
+            <button
+              onClick={() => checkIdAvailability(userInfo.id)}
+              disabled={!idValid}
+            >
               중복확인
             </button>
             {isIdDuplicated === null && <p>아이디를 입력해주세요.</p>}
@@ -109,7 +136,12 @@ function Signup() {
               value={userInfo.email}
               name="email"
             />
-            <button disabled={!emailValid}>인증번호 받기</button>
+            <button
+              disabled={!emailValid}
+              onClick={() => sendVerificationEmail(userInfo.email)}
+            >
+              인증번호 받기
+            </button>
           </div>
           <div style={{ margin: "10px" }}>
             <input
@@ -117,6 +149,8 @@ function Signup() {
               style={{ marginLeft: "150px" }}
               type="string"
               placeholder="인증번호를 입력해주세요"
+              value={userInfo.code}
+              name="code"
             />
           </div>
           <div style={{ margin: "10px" }}>
@@ -129,7 +163,7 @@ function Signup() {
               value={userInfo.password}
               name="password"
             />
-            {passwordValid && <p>유효한 패스워드</p>}
+            {passwordValid && <p>사용 가능한 비밀번호입니다.</p>}
           </div>
           <div style={{ margin: "10px" }}>
             <label class={`${input.greetingLabel}`}>비밀번호 확인</label>
@@ -142,11 +176,12 @@ function Signup() {
               name="passwordConfirm"
             />
             <div style={{ marginLeft: "150px" }}>
-              {userInfo.password === userInfo.passwordConfirm ? (
-                <p>비밀번호가 일치합니다</p>
-              ) : (
-                <p>비밀번호가 일치하지 않습니다</p>
-              )}
+              {userInfo.passwordConfirm &&
+                (userInfo.password === userInfo.passwordConfirm ? (
+                  <p>비밀번호가 일치합니다</p>
+                ) : (
+                  <p>비밀번호가 일치하지 않습니다</p>
+                ))}
             </div>
           </div>
         </form>
