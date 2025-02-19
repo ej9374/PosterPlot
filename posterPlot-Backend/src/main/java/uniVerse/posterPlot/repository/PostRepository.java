@@ -27,4 +27,6 @@ public interface PostRepository {
     public void delete(Integer postId);
 
     public List<String> findTitlesByPostIds(List<Integer> postIds);
+
+    public List<Integer> findUsersByPostIds(List<Integer> postIds);
 }

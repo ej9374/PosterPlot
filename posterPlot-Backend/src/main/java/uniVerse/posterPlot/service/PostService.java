@@ -3,23 +3,28 @@ package uniVerse.posterPlot.service;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uniVerse.posterPlot.dto.PostListResponseDto;
 import uniVerse.posterPlot.dto.PostRequestDto;
+import uniVerse.posterPlot.dto.PostResponseDto;
 import uniVerse.posterPlot.entity.Genre;
 import uniVerse.posterPlot.entity.PostEntity;
 import uniVerse.posterPlot.entity.UserEntity;
 import uniVerse.posterPlot.repository.PostLikeRepository;
 import uniVerse.posterPlot.repository.PostRepository;
+import uniVerse.posterPlot.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class PostService {
 
+    private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
 
@@ -37,12 +42,13 @@ public class PostService {
     }
 
     // 전달받은 postId로 postEntity 찾아서 전부 반환
-    public PostEntity getPost(Integer postId) {
+    public PostResponseDto getPost(Integer postId) {
         PostEntity post = postRepository.findByPostId(postId);
-        if (post == null) {
+        PostResponseDto responseDto = new PostResponseDto(postId, post.getUser().getId(), post.getTitle(), post.getContent(), post.getTotalLikes(), post.getGenre());
+        if (post == null || responseDto == null) {
             throw new EntityNotFoundException("게시글을 찾을 수 없습니다. postId: " + postId);
         }
-        return post;
+        return responseDto;
     }
 
     // 모든 글 조회하기 (최신순 / postId 내림차순)
@@ -52,10 +58,15 @@ public class PostService {
             return Collections.emptyList();
 
         List<String> titles = getTitlesByPostIds(postIds);
+        List<Integer> userIds = getUserIdsByPostIds(postIds);
+        List<String> users = new ArrayList<>();
+        for (int i = 0; i< userIds.size(); i++){
+            users.add(userRepository.findUserByUserId(userIds.get(i)));
+        }
         List<PostListResponseDto> responseList = new ArrayList<>();
 
         for (int i = 0; i < postIds.size(); i++) {
-            responseList.add(new PostListResponseDto(postIds.get(i), titles.get(i)));
+            responseList.add(new PostListResponseDto(postIds.get(i), titles.get(i), users.get(i)));
         }
         return responseList;
     }
@@ -67,24 +78,35 @@ public class PostService {
             return Collections.emptyList();
 
         List<String> titles = getTitlesByPostIds(postIds);
+        List<Integer> userIds = getUserIdsByPostIds(postIds);
+        List<String> users = new ArrayList<>();
+        for (int i = 0; i< userIds.size(); i++){
+            users.add(userRepository.findUserByUserId(userIds.get(i)));
+        }
         List<PostListResponseDto> responseList = new ArrayList<>();
 
         for (int i = 0; i < postIds.size(); i++) {
-            responseList.add(new PostListResponseDto(postIds.get(i), titles.get(i)));
+            responseList.add(new PostListResponseDto(postIds.get(i), titles.get(i), users.get(i)));
         }
         return responseList;
     }
 
+    // 좋아요순
     public List<PostListResponseDto> getPostsByLikes(){
         List<Integer> postIds = postRepository.findAllByLikes();
         if (postIds.isEmpty())
             return Collections.emptyList();
 
         List<String> titles = getTitlesByPostIds(postIds);
+        List<Integer> userIds = getUserIdsByPostIds(postIds);
+        List<String> users = new ArrayList<>();
+        for (int i = 0; i< userIds.size(); i++){
+            users.add(userRepository.findUserByUserId(userIds.get(i)));
+        }
         List<PostListResponseDto> responseList = new ArrayList<>();
 
         for (int i = 0; i < postIds.size(); i++) {
-            responseList.add(new PostListResponseDto(postIds.get(i), titles.get(i)));
+            responseList.add(new PostListResponseDto(postIds.get(i), titles.get(i), users.get(i)));
         }
         return responseList;
     }
@@ -95,11 +117,16 @@ public class PostService {
         if (postIds.isEmpty())
             return Collections.emptyList();
 
-        List<String> title = getTitlesByPostIds(postIds);
+        List<String> titles = getTitlesByPostIds(postIds);
+        List<Integer> userIds = getUserIdsByPostIds(postIds);
+        List<String> users = new ArrayList<>();
+        for (int i = 0; i< userIds.size(); i++){
+            users.add(userRepository.findUserByUserId(userIds.get(i)));
+        }
         List<PostListResponseDto> responseList = new ArrayList<>();
 
         for (int i = 0; i < postIds.size(); i++) {
-            responseList.add(new PostListResponseDto(postIds.get(i), title.get(i)));
+            responseList.add(new PostListResponseDto(postIds.get(i), titles.get(i), users.get(i)));
         }
         return responseList;
     }
@@ -111,10 +138,11 @@ public class PostService {
             return Collections.emptyList();
 
         List<String> titles = getTitlesByPostIds(postIds);
+        String user = userRepository.findUserByUserId(userId);
         List<PostListResponseDto> responseList = new ArrayList<>();
 
         for (int i = 0; i < postIds.size(); i++) {
-            responseList.add(new PostListResponseDto(postIds.get(i), titles.get(i)));
+            responseList.add(new PostListResponseDto(postIds.get(i), titles.get(i), user));
         }
         return responseList;
     }
@@ -126,10 +154,15 @@ public class PostService {
             return Collections.emptyList();
 
         List<String> titles = getTitlesByPostIds(postIds);
+        List<Integer> userIds = getUserIdsByPostIds(postIds);
+        List<String> users = new ArrayList<>();
+        for (int i = 0; i< userIds.size(); i++){
+            users.add(userRepository.findUserByUserId(userIds.get(i)));
+        }
         List<PostListResponseDto> responseList = new ArrayList<>();
 
         for (int i = 0; i < postIds.size(); i++) {
-            responseList.add(new PostListResponseDto(postIds.get(i), titles.get(i)));
+            responseList.add(new PostListResponseDto(postIds.get(i), titles.get(i), users.get(i)));
         }
         return responseList;
     }
@@ -152,6 +185,10 @@ public class PostService {
         return postRepository.findTitlesByPostIds(postIds);
     }
 
+    public List<Integer> getUserIdsByPostIds(List<Integer> postIds){
+        return postRepository.findUsersByPostIds(postIds);
+    }
+
     // 게시글 좋아요 기능
     @Transactional
     public void likePost(Integer postId, Integer userId) {
@@ -161,6 +198,9 @@ public class PostService {
         postLikeRepository.addLike(postId, userId);
 
         PostEntity post = postRepository.findByPostId(postId);
+        if (post == null){
+            throw new RuntimeException("게시글을 찾을 수 없습니다.");
+        }
         post.setTotalLikes(post.getTotalLikes() + 1);
         postRepository.save(post);
     }

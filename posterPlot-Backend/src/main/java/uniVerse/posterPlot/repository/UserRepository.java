@@ -15,4 +15,6 @@ public interface UserRepository {
 
     //로그인
     public Optional<UserEntity> findById(String id);
+
+    public String findUserByUserId(Integer userId);
 }

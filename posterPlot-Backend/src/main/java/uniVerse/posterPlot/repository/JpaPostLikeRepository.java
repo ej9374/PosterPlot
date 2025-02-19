@@ -15,7 +15,7 @@ public class JpaPostLikeRepository implements PostLikeRepository {
 
     @Override
     public boolean isExistLike(Integer postId, Integer userId) {
-        Integer count = em.createQuery("select count(pl) from PostLikeEntity pl where pl.post.postId = :postId and pl.user.userId = :userId", Integer.class)
+        Long count = em.createQuery("select count(pl) from PostLikeEntity pl where pl.post.postId = :postId and pl.user.userId = :userId", Long.class)
                 .setParameter("postId", postId)
                 .setParameter("userId", userId)
                 .getSingleResult();

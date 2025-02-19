@@ -18,6 +18,7 @@ public class PostRequestDto {
     private String title;
 
     @NotBlank(message = "내용을 입력해주세요.")
+    @Schema(example = "시나리오 이야기")
     private String content;
 
     @NotNull(message = "장르를 선택해주세요.")

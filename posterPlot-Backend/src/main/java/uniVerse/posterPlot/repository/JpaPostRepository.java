@@ -38,13 +38,13 @@ public class JpaPostRepository implements PostRepository {
 
     @Override
     public List<Integer> findAllByLikes() {
-        return em.createQuery("select p.postId from PostEntity p order by p.totalLikes desc", Integer.class)
+        return em.createQuery("select p.postId from PostEntity p order by p.totalLikes desc, p.postId desc", Integer.class)
                 .getResultList();
     }
 
     @Override
     public List<Integer> findTopLikesPost() {
-        return em.createQuery("select p.postId from PostEntity p where p.totalLikes >= 10 order by p.totalLikes desc", Integer.class)
+        return em.createQuery("select p.postId from PostEntity p where p.totalLikes >= 10 order by p.totalLikes desc, p.postId desc", Integer.class)
                 .setMaxResults(3)
                 .getResultList();
     }
@@ -73,7 +73,14 @@ public class JpaPostRepository implements PostRepository {
 
     @Override
     public List<String> findTitlesByPostIds(List<Integer> postIds) {
-        return em.createQuery("SELECT p.title FROM PostEntity p WHERE p.postId IN :postIds ORDER BY p.postId DESC", String.class)
+        return em.createQuery("select p.title from PostEntity p where p.postId in :postIds order by p.postId desc", String.class)
+                .setParameter("postIds", postIds)
+                .getResultList();
+    }
+
+    @Override
+    public List<Integer> findUsersByPostIds(List<Integer> postIds) {
+        return em.createQuery("select p.user.userId from PostEntity p where p.postId in :postIds order by p.postId desc", Integer.class)
                 .setParameter("postIds", postIds)
                 .getResultList();
     }

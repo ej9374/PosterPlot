@@ -41,7 +41,4 @@ public class PostEntity {
         this.totalLikes = totalLikes;
         this.genre = genre;
     }
-
-
-
 }

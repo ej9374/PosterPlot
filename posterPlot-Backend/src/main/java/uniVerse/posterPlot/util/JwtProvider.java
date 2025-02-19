@@ -23,7 +23,7 @@ public class JwtProvider {
         Date expiredDate = Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
 
         return Jwts.builder()
-                .signWith(key)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .setSubject(id)
                 .setIssuedAt(new Date())
                 .setExpiration(expiredDate)

@@ -43,5 +43,12 @@ public class JpaUserRepository implements UserRepository{
             return Optional.empty();
         }
     }
+
+    @Override
+    public String findUserByUserId(Integer userId) {
+        return em.createQuery("select u.id from UserEntity u where u.userId = :userId", String.class)
+                .setParameter("userId", userId)
+                .getSingleResult();
+    }
 }
 
