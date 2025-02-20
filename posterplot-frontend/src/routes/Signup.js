@@ -16,6 +16,9 @@ function Signup() {
   });
 
   const [isIdDuplicated, setIsIdDuplicated] = useState(null);
+  const [isVerCodeOK, setIsVerCodeOK] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [error, setError] = useState("");
 
   // 6자 이상 20자 이하, 알파벳 대소문자와 숫자만 포함하는 경우 true 리턴
@@ -36,6 +39,7 @@ function Signup() {
     idValid && // 올바른 형태의 아이디인가?
     isIdDuplicated === false && // 아이디가 중복되었는가?
     emailValid && // 올바른 형태의 이메일인가?
+    userInfo.code && // 인증번호를 입력하였는가?
     passwordValid && // 올바른 형태의 비밀번호인가?
     userInfo.password === userInfo.passwordConfirm; // 비밀번호와 비밀번호 확인에 입력한 내용이 일치하는가?
 
@@ -89,13 +93,41 @@ function Signup() {
     }
   };
 
+  const checkVerificationCode = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/auth/mailAuthCheck",
+        { email: userInfo.email, authNum: userInfo.code }
+      );
+      if (response.status === 200) {
+        setIsVerCodeOK(true);
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        setIsVerCodeOK(false);
+      } else {
+        setIsVerCodeOK(null);
+        console.log("서버 오류가 발생했습니다.");
+      }
+      console.error("Error checking Verification code:", error);
+    }
+  };
+
   const handleSignUp = async () => {
+    if (isLoading) return; // 이미 요청 중이면 중복 요청 방지
+
+    setIsLoading(true); // 로딩 시작
+
     // 인증번호(code) 검증
-    /* if (userInfo.code !== verificationCode) {
-      // TODO: 수정하기
-      alert("인증번호가 일치하지 않습니다.");
+    await checkVerificationCode();
+    if (!isVerCodeOK) {
+      alert(
+        isVerCodeOK === false
+          ? "인증번호가 일치하지 않습니다."
+          : "서버 오류가 발생했습니다."
+      );
       return;
-    }*/
+    }
 
     try {
       const response = await axios.post(
@@ -110,11 +142,11 @@ function Signup() {
 
       if (response.status === 201) {
         alert("회원가입이 완료되었습니다!");
-        // TODO: 회원가입 성공 후 로그인 페이지로 이동 등 추가 작업
+        setTimeout(() => navigate("/Login"), 1000);
       }
     } catch (error) {
       console.error("회원가입 실패:", error.response?.data || error.message);
-      alert(`회원가입 실패: ${error.response?.data || "서버 오류"}`);
+      alert(`회원가입 실패: ${error.response?.data.message || "서버 오류"}`);
     }
   };
 
