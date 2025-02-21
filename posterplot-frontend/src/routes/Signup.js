@@ -1,5 +1,5 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import { React, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import display from "../styles/Display.module.css";
@@ -16,10 +16,8 @@ function Signup() {
   });
 
   const [isIdDuplicated, setIsIdDuplicated] = useState(null);
-  const [isVerCodeOK, setIsVerCodeOK] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   // 6자 이상 20자 이하, 알파벳 대소문자와 숫자만 포함하는 경우 true 리턴
   const idValid = /^(?=.*[a-zA-Z])[a-zA-Z0-9]{6,20}$/.test(userInfo.id);
@@ -54,22 +52,28 @@ function Signup() {
 
   // 아이디 중복 체크
   const checkIdAvailability = async (id) => {
+    if (!idValid) {
+      setIsIdDuplicated(null);
+      return;
+    }
     try {
       const response = await axios.get(`http://localhost:8080/auth/checkId`, {
         params: { id: id },
       });
       if (response.status === 200) {
         setIsIdDuplicated(false); // 중복되지 않는 아이디
-      } else if (response.status === 409) {
-        setIsIdDuplicated(true); // 중복된 아이디
       } else {
-        setIsIdDuplicated(null);
+        setIsIdDuplicated(true); // 중복된 아이디
       }
     } catch (error) {
       console.error("Error checking ID:", error);
       setIsIdDuplicated(null);
     }
   };
+
+  useEffect(() => {
+    checkIdAvailability(userInfo.id);
+  }, [userInfo.id]);
 
   const sendVerificationEmail = async (email) => {
     try {
@@ -99,33 +103,22 @@ function Signup() {
         "http://localhost:8080/auth/mailAuthCheck",
         { email: userInfo.email, authNum: userInfo.code }
       );
-      if (response.status === 200) {
-        setIsVerCodeOK(true);
-      }
+      return response.status === 200;
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        setIsVerCodeOK(false);
-      } else {
-        setIsVerCodeOK(null);
-        console.log("서버 오류가 발생했습니다.");
-      }
-      console.error("Error checking Verification code:", error);
+      return false;
     }
   };
-
-  const handleSignUp = async () => {
+  const handleSignUp = async (event) => {
+    event.preventDefault();
     if (isLoading) return; // 이미 요청 중이면 중복 요청 방지
 
     setIsLoading(true); // 로딩 시작
 
     // 인증번호(code) 검증
-    await checkVerificationCode();
-    if (!isVerCodeOK) {
-      alert(
-        isVerCodeOK === false
-          ? "인증번호가 일치하지 않습니다."
-          : "서버 오류가 발생했습니다."
-      );
+    const isCodeValid = await checkVerificationCode();
+    if (!isCodeValid) {
+      alert("인증번호가 일치하지 않습니다.");
+      setIsLoading(false);
       return;
     }
 
@@ -147,40 +140,36 @@ function Signup() {
     } catch (error) {
       console.error("회원가입 실패:", error.response?.data || error.message);
       alert(`회원가입 실패: ${error.response?.data.message || "서버 오류"}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div class={display.xyCenter}>
-      <h1 class={`${display.titleFont}`} align="center">
+    <div className={display.xyCenter}>
+      <h1 className={`${display.titleFont}`} align="center">
         회원가입
       </h1>
       <div>
-        <form class={`${display.nameFont}`} onChange={handleInputChange}>
+        <form className={`${display.nameFont}`} onChange={handleInputChange}>
           <div style={{ margin: "10px" }}>
-            <label class={`${input.greetingLabel}`}>아이디</label>
+            <label className={`${input.greetingLabel}`}>아이디</label>
             <input
-              class={input.greetingInput}
+              className={input.greetingInput}
               type="text"
               placeholder="6자 이상의 영문 혹은 영문과 숫자를 조합"
               maxLength={20}
               value={userInfo.id}
               name="id"
             />
-            <button
-              onClick={() => checkIdAvailability(userInfo.id)}
-              disabled={!idValid}
-            >
-              중복확인
-            </button>
             {isIdDuplicated === null && <p>아이디를 입력해주세요.</p>}
             {isIdDuplicated === false && <p>사용 가능한 아이디입니다.</p>}
             {isIdDuplicated === true && <p>이미 사용 중인 아이디입니다.</p>}
           </div>
           <div style={{ margin: "10px" }}>
-            <label class={`${input.greetingLabel}`}>이메일</label>
+            <label className={`${input.greetingLabel}`}>이메일</label>
             <input
-              class={input.greetingInput}
+              className={input.greetingInput}
               type="email"
               placeholder="예: posterplot@plot.com"
               value={userInfo.email}
@@ -188,14 +177,17 @@ function Signup() {
             />
             <button
               disabled={!emailValid}
-              onClick={() => sendVerificationEmail(userInfo.email)}
+              onClick={(event) => {
+                event.preventDefault();
+                sendVerificationEmail(userInfo.email);
+              }}
             >
               인증번호 받기
             </button>
           </div>
           <div style={{ margin: "10px" }}>
             <input
-              class={input.greetingInput}
+              className={input.greetingInput}
               style={{ marginLeft: "150px" }}
               type="string"
               placeholder="인증번호를 입력해주세요"
@@ -204,9 +196,9 @@ function Signup() {
             />
           </div>
           <div style={{ margin: "10px" }}>
-            <label class={`${input.greetingLabel}`}>비밀번호</label>
+            <label className={`${input.greetingLabel}`}>비밀번호</label>
             <input
-              class={input.greetingInput}
+              className={input.greetingInput}
               type="password"
               placeholder="비밀번호를 입력해주세요"
               maxLength={20}
@@ -216,9 +208,9 @@ function Signup() {
             {passwordValid && <p>사용 가능한 비밀번호입니다.</p>}
           </div>
           <div style={{ margin: "10px" }}>
-            <label class={`${input.greetingLabel}`}>비밀번호 확인</label>
+            <label className={`${input.greetingLabel}`}>비밀번호 확인</label>
             <input
-              class={input.greetingInput}
+              className={input.greetingInput}
               type="password"
               placeholder="비밀번호를 한번 더 입력해주세요"
               maxLength={20}
