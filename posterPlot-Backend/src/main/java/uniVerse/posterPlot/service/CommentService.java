@@ -44,7 +44,7 @@ public class CommentService {
         }
 
         if (!comment.getUser().getUserId().equals(userId)) {
-            throw new RuntimeException("댓글 삭제 권한이 없습니다. (code: 40301)");
+            throw new RuntimeException("댓글 삭제 권한이 없습니다.");
         }
 
         commentRepository.delete(commentId);
