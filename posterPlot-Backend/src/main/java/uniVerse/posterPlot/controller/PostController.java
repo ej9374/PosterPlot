@@ -3,6 +3,7 @@ package uniVerse.posterPlot.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.PreUpdate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import uniVerse.posterPlot.dto.PostListResponseDto;
 import uniVerse.posterPlot.dto.PostRequestDto;
 import uniVerse.posterPlot.dto.PostResponseDto;
+import uniVerse.posterPlot.entity.AiStoryEntity;
 import uniVerse.posterPlot.entity.Genre;
-import uniVerse.posterPlot.entity.PostEntity;
 import uniVerse.posterPlot.entity.UserEntity;
 import uniVerse.posterPlot.service.PostService;
 import uniVerse.posterPlot.util.SecurityUtil;
@@ -28,6 +29,50 @@ public class PostController {
 
 
     private final PostService postService;
+
+    // Ai Story 띄우기
+    @Operation(
+            summary = "사용자의 AI Story 조회",
+            description = "현재 로그인한 사용자의 AI Story를 조회하여 반환합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "AI Story 반환 성공"),
+                    @ApiResponse(responseCode = "400", description = "Ai Story를 찾을 수 없습니다."),
+                    @ApiResponse(responseCode = "500", description = "서버 에러가 발생했습니다.")
+            }
+    )
+    @GetMapping("/aiStory")
+    public ResponseEntity<String> getAiStory(@RequestParam(name = "aiStoryId") Integer aiStoryId){
+        try {
+            String story = postService.getAiStory(aiStoryId).getStory();
+            return ResponseEntity.ok(story);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 에러가 발생했습니다.");
+        }
+    }
+
+    // 영화 포스터 띄우기
+    @Operation(
+            summary = "사용자의 AI Story 기반 영화 포스터 목록 조회",
+            description = "현재 로그인한 사용자의 AI Story와 관련된 영화 포스터 목록을 반환합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "영화 포스터 목록 반환 성공"),
+                    @ApiResponse(responseCode = "400", description = "영화 포스터를 찾을 수 없습니다."),
+                    @ApiResponse(responseCode = "500", description = "서버 에러가 발생했습니다.")
+            }
+    )
+    @GetMapping("/moviePosters")
+    public ResponseEntity<List<String>> getMoviePosters(@RequestParam(name = "aiStoryId") Integer aiStoryId){
+        try {
+            List<String> movieList = postService.getMovieList(aiStoryId);
+            return ResponseEntity.ok(movieList);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
     // 게시글 작성
     @Operation(
@@ -46,6 +91,8 @@ public class PostController {
             UserEntity user = SecurityUtil.getAuthenticatedUser();
             if (user == null)
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 유저가 아닙니다.");
+            if (requestDto.getAiStoryId() == null)
+                requestDto.setAiStoryId(null);
             postService.createPost(user, requestDto);
             return ResponseEntity.ok("게시글이 성공적으로 작성되었습니다.");
         } catch (IllegalArgumentException e) {

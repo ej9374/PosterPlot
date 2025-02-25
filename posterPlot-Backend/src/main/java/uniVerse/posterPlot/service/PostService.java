@@ -8,12 +8,8 @@ import org.springframework.stereotype.Service;
 import uniVerse.posterPlot.dto.PostListResponseDto;
 import uniVerse.posterPlot.dto.PostRequestDto;
 import uniVerse.posterPlot.dto.PostResponseDto;
-import uniVerse.posterPlot.entity.Genre;
-import uniVerse.posterPlot.entity.PostEntity;
-import uniVerse.posterPlot.entity.UserEntity;
-import uniVerse.posterPlot.repository.PostLikeRepository;
-import uniVerse.posterPlot.repository.PostRepository;
-import uniVerse.posterPlot.repository.UserRepository;
+import uniVerse.posterPlot.entity.*;
+import uniVerse.posterPlot.repository.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +23,36 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
+    private final AiStoryRepository aiStoryRepository;
+
+    // Ai story 띄우기
+    @Transactional
+    public AiStoryEntity getAiStory(Integer aiStoryId){
+        AiStoryEntity aiStory = aiStoryRepository.findAiStoryById(aiStoryId);
+
+        if (aiStory == null){
+            throw new RuntimeException("Ai Story를 찾을 수 없습니다.");
+        }
+        return aiStory;
+    }
+
+    // 영화 포스터 띄우기
+    @Transactional
+    public List<String> getMovieList(Integer aiStoryId){
+        MovieListEntity movieList = aiStoryRepository.findMovieListByAiStory(aiStoryId);
+        String movie1stPath = movieList.getMovie1stPath();
+        String movie2ndPath = movieList.getMovie2ndPath();
+
+        if ( movie1stPath == null || movie2ndPath == null){
+            throw new RuntimeException("영화 포스터를 찾을 수 없습니다.");
+        }
+
+        List<String> movies = new ArrayList<>();
+        movies.add(movie1stPath);
+        movies.add(movie2ndPath);
+
+        return movies;
+    }
 
     // 글 작성 메서드
     @Transactional
@@ -37,14 +63,21 @@ public class PostService {
         Integer totalLike = 0;
         Genre genre = requestDto.getGenre();
 
-        PostEntity post = new PostEntity(user, title, content, totalLike, genre);
+        AiStoryEntity aiStory = null;
+
+        if (requestDto.getAiStoryId() != null) {
+            aiStory = aiStoryRepository.findAiStoryById(requestDto.getAiStoryId());
+        }
+
+        PostEntity post = new PostEntity(user, title, content, totalLike, genre, aiStory);
         postRepository.save(post);
     }
 
     // 전달받은 postId로 postEntity 찾아서 전부 반환
     public PostResponseDto getPost(Integer postId) {
         PostEntity post = postRepository.findByPostId(postId);
-        PostResponseDto responseDto = new PostResponseDto(postId, post.getUser().getId(), post.getTitle(), post.getContent(), post.getTotalLikes(), post.getGenre());
+        AiStoryEntity aiStory = post.getAiStory();
+        PostResponseDto responseDto = new PostResponseDto(postId, post.getUser().getId(), post.getTitle(), post.getContent(), post.getTotalLikes(), post.getGenre(), aiStory.getStory(), aiStory.getMovieList().getMovie1stPath(), aiStory.getMovieList().getMovie2ndPath());
         if (post == null || responseDto == null) {
             throw new EntityNotFoundException("게시글을 찾을 수 없습니다. postId: " + postId);
         }
