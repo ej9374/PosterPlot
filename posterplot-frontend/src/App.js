@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./routes/Home";
 import Signup from "./routes/Signup";
 import Login from "./routes/Login";
+import CreatePost from "./routes/CreatePost";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         {/** 회원가입 화면 */}
         <Route path="/login" element={<Login />} />
         {/** 로그인 화면 */}
+        <Route path="/createpost" element={<CreatePost />} />
       </Routes>
     </Router>
   );
