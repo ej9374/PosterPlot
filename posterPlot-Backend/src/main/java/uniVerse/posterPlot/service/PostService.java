@@ -76,9 +76,29 @@ public class PostService {
     // 전달받은 postId로 postEntity 찾아서 전부 반환
     public PostResponseDto getPost(Integer postId) {
         PostEntity post = postRepository.findByPostId(postId);
+
+        if (post == null) {
+            throw new EntityNotFoundException("게시글을 찾을 수 없습니다. postId: " + postId);
+        }
+
         AiStoryEntity aiStory = post.getAiStory();
-        PostResponseDto responseDto = new PostResponseDto(postId, post.getUser().getId(), post.getTitle(), post.getContent(), post.getTotalLikes(), post.getGenre(), aiStory.getStory(), aiStory.getMovieList().getMovie1stPath(), aiStory.getMovieList().getMovie2ndPath());
-        if (post == null || responseDto == null) {
+        MovieListEntity movieList = (aiStory != null) ? aiStory.getMovieList() : null;
+
+        String movie1stPath = (movieList != null) ? movieList.getMovie1stPath() : "";
+        String movie2ndPath = (movieList != null) ? movieList.getMovie2ndPath() : "";
+        String story = (aiStory != null) ? aiStory.getStory() : "";
+
+        PostResponseDto responseDto = new PostResponseDto(
+                postId,
+                post.getUser().getId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getTotalLikes(),
+                post.getGenre(),
+                story,
+                movie1stPath,
+                movie2ndPath);
+        if (responseDto == null) {
             throw new EntityNotFoundException("게시글을 찾을 수 없습니다. postId: " + postId);
         }
         return responseDto;

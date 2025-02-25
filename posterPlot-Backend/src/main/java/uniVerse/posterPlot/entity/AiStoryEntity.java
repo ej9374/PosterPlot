@@ -15,22 +15,17 @@ public class AiStoryEntity {
     @Column(name = "ai_story_id")
     private Integer aiStoryId;
 
-    @Column(name = "story")
+    @Column(name = "story", columnDefinition = "TEXT")
     private String story;
 
     @ManyToOne
     @JoinColumn(name = "movie_list_id", referencedColumnName = "movie_list_id")
     private MovieListEntity movieList;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-    private UserEntity user;
-
     public AiStoryEntity() {}
 
-    public AiStoryEntity(String story, MovieListEntity movieList, UserEntity user) {
+    public AiStoryEntity(String story, MovieListEntity movieList) {
         this.story = story;
         this.movieList = movieList;
-        this.user = user;
     }
 }
