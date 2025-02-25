@@ -22,6 +22,23 @@
   font-family: Pretendard-Regular;
 }
 
+.container {
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column; /* 요소들을 세로로 정렬 */
+  align-items: center; /* 가로축(수평) 중앙 정렬 */
+  justify-content: center; /* 세로축(수직) 중앙 정렬 */
+  gap: 10px;
+}
+
+.container > * {
+  width: 100%; /* 내부 요소들이 컨테이너의 너비를 따르게 */
+  max-width: 800px;
+  text-align: center;
+}
+
 .xyCenter {
   position: absolute;
   left: 50%;
