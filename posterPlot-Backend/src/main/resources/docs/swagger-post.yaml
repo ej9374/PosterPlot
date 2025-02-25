@@ -1,10 +1,12 @@
+---
 openapi: 3.0.1
 info:
   title: PosterPlot API
-  description: 'AI 기반 줄거리 생성과 유저 작성 시나리오를 바탕으로, 유사 영화 추천 및 시나리오 열람 기능을 제공하는 웹 플랫폼 프로젝트 API'
+  description: AI 기반 줄거리 생성과 유저 작성 시나리오를 바탕으로, 유사 영화 추천 및 시나리오 열람 기능을 제공하는 웹 플랫폼 프로젝트
+    API
   version: v1.0
 servers:
-  - url: 'http://localhost:8080'
+  - url: http://localhost:8080
     description: Generated server url
 security:
   - JWT: []
@@ -12,7 +14,7 @@ tags:
   - name: AuthController
     description: AuthController API 목록
 paths:
-  /posts/like:
+  "/posts/like":
     post:
       tags:
         - post-controller
@@ -30,22 +32,22 @@ paths:
         '200':
           description: 좋아요 성공
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '400':
           description: 이미 좋아요를 누르셨습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '500':
           description: 서버 에러가 발생했습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
-  /posts/create:
+  "/posts/create":
     post:
       tags:
         - post-controller
@@ -56,34 +58,34 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PostRequestDto'
+              "$ref": "#/components/schemas/PostRequestDto"
         required: true
       responses:
         '200':
           description: 게시글이 성공적으로 작성되었습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '400':
           description: 요청 데이터가 유효하지 않습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '401':
           description: 로그인 유저가 아닙니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '500':
           description: 서버 에러가 발생했습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
-  /auth/signUp:
+  "/auth/signUp":
     post:
       tags:
         - AuthController
@@ -94,22 +96,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SignUpRequestDto'
+              "$ref": "#/components/schemas/SignUpRequestDto"
         required: true
       responses:
         '200':
           description: 회원가입 성공
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '500':
           description: 서버 에러가 발생했습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
-  /auth/mailSend:
+  "/auth/mailSend":
     post:
       tags:
         - AuthController
@@ -128,22 +130,22 @@ paths:
         '200':
           description: 이메일로 인증 번호가 전송되었습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '409':
           description: 이미 사용 중인 이메일입니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '500':
           description: 서버 에러가 발생했습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
-  /auth/login:
+  "/auth/login":
     post:
       tags:
         - AuthController
@@ -154,22 +156,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequestDto'
+              "$ref": "#/components/schemas/LoginRequestDto"
         required: true
       responses:
         '200':
           description: 로그인이 성공하여 jwt 토큰을 출력합니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '401':
           description: 아이디 또는 비밀번호가 옳지 않습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
-  /posts/view:
+  "/posts/view":
     get:
       tags:
         - post-controller
@@ -187,29 +189,67 @@ paths:
         '200':
           description: 게시글 반환 성공
           content:
-            '*/*':
+            "*/*":
               schema:
-                $ref: '#/components/schemas/PostResponseDto'
+                "$ref": "#/components/schemas/PostResponseDto"
         '404':
           description: 게시글을 찾을 수 없습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
-                $ref: '#/components/schemas/PostResponseDto'
+                "$ref": "#/components/schemas/PostResponseDto"
         '500':
           description: 서버 에러가 발생했습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
-                $ref: '#/components/schemas/PostResponseDto'
-  /posts/list:
+                "$ref": "#/components/schemas/PostResponseDto"
+  "/posts/moviePosters":
+    get:
+      tags:
+        - post-controller
+      summary: 사용자의 AI Story 기반 영화 포스터 목록 조회
+      description: 현재 로그인한 사용자의 AI Story와 관련된 영화 포스터 목록을 반환합니다.
+      operationId: getMoviePosters
+      parameters:
+        - name: aiStoryId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: 영화 포스터 목록 반환 성공
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          description: 영화 포스터를 찾을 수 없습니다.
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  type: string
+        '500':
+          description: 서버 에러가 발생했습니다.
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  type: string
+  "/posts/list":
     get:
       tags:
         - post-controller
       summary: 게시물 목록 띄우기
-      description: >-
-        게시물 목록을 요청된 정렬 기준에 따라 반환합니다. 가능한 정렬 기준: 'latest' (최신순), 'oldest' (오래된순),
-        'likes' (좋아요순), 'top_likes' (좋아요 상위 3개)
+      description: '게시물 목록을 요청된 정렬 기준에 따라 반환합니다. 가능한 정렬 기준: ''latest'' (최신순), ''oldest''
+        (오래된순), ''likes'' (좋아요순), ''top_likes'' (좋아요 상위 3개)'
       operationId: getPosts
       parameters:
         - name: type
@@ -221,33 +261,34 @@ paths:
         '200':
           description: 게시글 목록 반환 성공
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PostListResponseDto'
+                  "$ref": "#/components/schemas/PostListResponseDto"
         '400':
           description: 잘못된 요청 타입입니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PostListResponseDto'
+                  "$ref": "#/components/schemas/PostListResponseDto"
         '500':
           description: 서버 내부 오류 발생
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PostListResponseDto'
-  '/posts/list/{genre}':
+                  "$ref": "#/components/schemas/PostListResponseDto"
+  "/posts/list/{genre}":
     get:
       tags:
         - post-controller
       summary: 장르별 게시글 조회
-      description: '입력된 장르에 해당하는 게시글 목록을 반환합니다. 예시: ''ACTION'', ''COMEDY'', ''DRAMA'', ''SCIFI'' 등'
+      description: '입력된 장르에 해당하는 게시글 목록을 반환합니다. 예시: ''ACTION'', ''COMEDY'', ''DRAMA'',
+        ''SCIFI'' 등'
       operationId: getGenrePosts
       parameters:
         - name: genre
@@ -272,28 +313,28 @@ paths:
         '200':
           description: 게시글 목록 반환 성공
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PostListResponseDto'
+                  "$ref": "#/components/schemas/PostListResponseDto"
         '400':
           description: 잘못된 장르 값입니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PostListResponseDto'
+                  "$ref": "#/components/schemas/PostListResponseDto"
         '500':
           description: 서버 내부 오류 발생
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PostListResponseDto'
-  /posts/list/my:
+                  "$ref": "#/components/schemas/PostListResponseDto"
+  "/posts/list/my":
     get:
       tags:
         - post-controller
@@ -304,28 +345,61 @@ paths:
         '200':
           description: 게시글 목록 반환 성공
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PostListResponseDto'
+                  "$ref": "#/components/schemas/PostListResponseDto"
         '401':
           description: 로그인이 필요합니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PostListResponseDto'
+                  "$ref": "#/components/schemas/PostListResponseDto"
         '500':
           description: 서버 내부 오류 발생
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PostListResponseDto'
-  /auth/mailAuthCheck:
+                  "$ref": "#/components/schemas/PostListResponseDto"
+  "/posts/aiStory":
+    get:
+      tags:
+        - post-controller
+      summary: 사용자의 AI Story 조회
+      description: 현재 로그인한 사용자의 AI Story를 조회하여 반환합니다.
+      operationId: getAiStory
+      parameters:
+        - name: aiStoryId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: AI Story 반환 성공
+          content:
+            "*/*":
+              schema:
+                type: string
+        '400':
+          description: Ai Story를 찾을 수 없습니다.
+          content:
+            "*/*":
+              schema:
+                type: string
+        '500':
+          description: 서버 에러가 발생했습니다.
+          content:
+            "*/*":
+              schema:
+                type: string
+  "/auth/mailAuthCheck":
     get:
       tags:
         - AuthController
@@ -337,21 +411,21 @@ paths:
           in: query
           required: true
           schema:
-            $ref: '#/components/schemas/EmailCheckDto'
+            "$ref": "#/components/schemas/EmailCheckDto"
       responses:
         '200':
           description: 인증 번호가 일치합니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '400':
           description: 인증 번호가 일치하지 않습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
-  /auth/checkPassword:
+  "/auth/checkPassword":
     get:
       tags:
         - AuthController
@@ -377,16 +451,16 @@ paths:
         '200':
           description: 사용 가능한 비밀번호입니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '400':
           description: 비밀번호가 일치하지 않습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
-  /auth/checkId:
+  "/auth/checkId":
     get:
       tags:
         - AuthController
@@ -405,16 +479,16 @@ paths:
         '200':
           description: 사용 가능한 아이디입니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '409':
           description: 아이디가 이미 존재합니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
-  '/posts/delete/{postId}':
+  "/posts/delete/{postId}":
     delete:
       tags:
         - post-controller
@@ -432,19 +506,19 @@ paths:
         '200':
           description: 게시글이 성공적으로 삭제되었습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '400':
           description: 해당 게시글을 찾을 수 없거나 삭제 권한이 없습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '500':
           description: 서버 에러가 발생했습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
 components:
@@ -490,6 +564,10 @@ components:
             - WAR
             - HORROR
             - THRILLER
+        aiStoryId:
+          type: integer
+          format: int32
+          example: 1
     SignUpRequestDto:
       required:
         - email
@@ -547,6 +625,12 @@ components:
             - WAR
             - HORROR
             - THRILLER
+        aiStory:
+          type: string
+        movie1stPath:
+          type: string
+        movie2ndPath:
+          type: string
     PostListResponseDto:
       type: object
       properties:
