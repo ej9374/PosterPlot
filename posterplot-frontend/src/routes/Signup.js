@@ -15,10 +15,11 @@ function Signup() {
     passwordConfirm: "",
   });
 
-  const [isIdDuplicated, setIsIdDuplicated] = useState(null);
-  const [isCodeCorrect, setIsCodeCorrect] = useState(false);
-  const [isEmailLoading, setIsEmailLoading] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isIdDuplicated, setIsIdDuplicated] = useState(null); // 아이디 중복 여부
+  const [isCodeCorrect, setIsCodeCorrect] = useState(false); // 인증번호 올바른지
+  const [isEmailLoading, setIsEmailLoading] = useState(false); // 이메일 전송 로딩
+  const [isLoading, setIsLoading] = useState(false); // 회원가입 로딩
+
   const navigate = useNavigate();
 
   // 6자 이상 20자 이하, 알파벳 대소문자와 숫자만 포함하는 경우 true 리턴
@@ -73,10 +74,12 @@ function Signup() {
     }
   };
 
+  // 사용자가 입력한 내용이 변경될 때마다 아이디 유효성 확인
   useEffect(() => {
     checkIdAvailability(userInfo.id);
   }, [userInfo.id]);
 
+  // 인증번호 메일 전송
   const sendVerificationEmail = async (email) => {
     setIsEmailLoading(true);
     try {
@@ -102,6 +105,7 @@ function Signup() {
     }
   };
 
+  // 인증번호 일치 여부 확인
   const checkVerificationCode = async () => {
     try {
       const response = await axios.post(
@@ -119,6 +123,8 @@ function Signup() {
       return false;
     }
   };
+
+  // 회원 가입
   const handleSignUp = async (event) => {
     event.preventDefault();
     if (isLoading) return; // 이미 요청 중이면 중복 요청 방지
