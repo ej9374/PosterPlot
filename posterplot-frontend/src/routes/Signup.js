@@ -16,6 +16,8 @@ function Signup() {
   });
 
   const [isIdDuplicated, setIsIdDuplicated] = useState(null);
+  const [isCodeCorrect, setIsCodeCorrect] = useState(false);
+  const [isEmailLoading, setIsEmailLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -76,6 +78,7 @@ function Signup() {
   }, [userInfo.id]);
 
   const sendVerificationEmail = async (email) => {
+    setIsEmailLoading(true);
     try {
       console.log(email);
       const response = await axios.post(
@@ -94,6 +97,8 @@ function Signup() {
       }
     } catch (error) {
       console.error("Error sending email:", error);
+    } finally {
+      setIsEmailLoading(false);
     }
   };
 
@@ -103,8 +108,14 @@ function Signup() {
         "http://localhost:8080/auth/mailAuthCheck",
         { email: userInfo.email, authNum: userInfo.code }
       );
-      return response.status === 200;
+      if (response.status === 200) {
+        setIsCodeCorrect(true);
+        alert("인증번호가 확인되었습니다.");
+        return true;
+      }
     } catch (error) {
+      setIsCodeCorrect(false);
+      alert("인증번호가 일치하지 않습니다.");
       return false;
     }
   };
@@ -115,10 +126,8 @@ function Signup() {
     setIsLoading(true); // 로딩 시작
 
     // 인증번호(code) 검증
-    const isCodeValid = await checkVerificationCode();
-    if (!isCodeValid) {
+    if (!isCodeCorrect) {
       alert("인증번호가 일치하지 않습니다.");
-      setIsLoading(false);
       return;
     }
 
@@ -175,15 +184,19 @@ function Signup() {
               value={userInfo.email}
               name="email"
             />
-            <button
-              disabled={!emailValid}
-              onClick={(event) => {
-                event.preventDefault();
-                sendVerificationEmail(userInfo.email);
-              }}
-            >
-              인증번호 받기
-            </button>
+            {isEmailLoading ? (
+              <p>LOADING...</p>
+            ) : (
+              <button
+                disabled={!emailValid}
+                onClick={(event) => {
+                  event.preventDefault();
+                  sendVerificationEmail(userInfo.email);
+                }}
+              >
+                인증번호 받기
+              </button>
+            )}
           </div>
           <div style={{ margin: "10px" }}>
             <input
@@ -194,6 +207,15 @@ function Signup() {
               value={userInfo.code}
               name="code"
             />
+            <button
+              disabled={!userInfo.code}
+              onClick={(event) => {
+                event.preventDefault();
+                checkVerificationCode();
+              }}
+            >
+              인증번호 확인
+            </button>
           </div>
           <div style={{ margin: "10px" }}>
             <label className={`${input.greetingLabel}`}>비밀번호</label>
