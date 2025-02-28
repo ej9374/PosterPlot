@@ -1,16 +1,18 @@
+---
 openapi: 3.0.1
 info:
   title: PosterPlot API
-  description: 'AI 기반 줄거리 생성과 유저 작성 시나리오를 바탕으로, 유사 영화 추천 및 시나리오 열람 기능을 제공하는 웹 플랫폼 프로젝트 API'
+  description: AI 기반 줄거리 생성과 유저 작성 시나리오를 바탕으로, 유사 영화 추천 및 시나리오 열람 기능을 제공하는 웹 플랫폼 프로젝트
+    API
   version: v1.0
 servers:
-  - url: 'http://localhost:8080'
+  - url: http://localhost:8080
     description: Generated server url
 tags:
   - name: AuthController
     description: AuthController API 목록
 paths:
-  /auth/signUp:
+  "/auth/signUp":
     post:
       tags:
         - AuthController
@@ -21,22 +23,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SignUpRequestDto'
+              "$ref": "#/components/schemas/SignUpRequestDto"
         required: true
       responses:
         '200':
           description: 회원가입 성공
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '500':
           description: 서버 에러가 발생했습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
-  /auth/mailSend:
+  "/auth/mailSend":
     post:
       tags:
         - AuthController
@@ -55,22 +57,48 @@ paths:
         '200':
           description: 이메일로 인증 번호가 전송되었습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '409':
           description: 이미 사용 중인 이메일입니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '500':
           description: 서버 에러가 발생했습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
-  /auth/login:
+  "/auth/mailAuthCheck":
+    post:
+      tags:
+        - AuthController
+      summary: 이메일 인증 확인
+      description: 인증 번호가 일치하는지 확인합니다.
+      operationId: AuthCheck
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/EmailCheckDto"
+        required: true
+      responses:
+        '200':
+          description: 인증 번호가 일치합니다.
+          content:
+            "*/*":
+              schema:
+                type: string
+        '400':
+          description: 인증 번호가 일치하지 않습니다.
+          content:
+            "*/*":
+              schema:
+                type: string
+  "/auth/login":
     post:
       tags:
         - AuthController
@@ -81,48 +109,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequestDto'
+              "$ref": "#/components/schemas/LoginRequestDto"
         required: true
       responses:
         '200':
           description: 로그인이 성공하여 jwt 토큰을 출력합니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '401':
           description: 아이디 또는 비밀번호가 옳지 않습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
-  /auth/mailAuthCheck:
-    get:
-      tags:
-        - AuthController
-      summary: 이메일 인증 확인
-      description: 인증 번호가 일치하는지 확인합니다.
-      operationId: AuthCheck
-      parameters:
-        - name: emailCheckDto
-          in: query
-          required: true
-          schema:
-            $ref: '#/components/schemas/EmailCheckDto'
-      responses:
-        '200':
-          description: 인증 번호가 일치합니다.
-          content:
-            '*/*':
-              schema:
-                type: string
-        '400':
-          description: 인증 번호가 일치하지 않습니다.
-          content:
-            '*/*':
-              schema:
-                type: string
-  /auth/checkPassword:
+  "/auth/checkPassword":
     get:
       tags:
         - AuthController
@@ -148,16 +150,16 @@ paths:
         '200':
           description: 사용 가능한 비밀번호입니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '400':
           description: 비밀번호가 일치하지 않습니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
-  /auth/checkId:
+  "/auth/checkId":
     get:
       tags:
         - AuthController
@@ -176,13 +178,13 @@ paths:
         '200':
           description: 사용 가능한 아이디입니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
         '409':
           description: 아이디가 이미 존재합니다.
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
 components:
@@ -205,15 +207,6 @@ components:
         email:
           type: string
           example: user123@gmail.com
-    LoginRequestDto:
-      type: object
-      properties:
-        id:
-          type: string
-          example: user123
-        password:
-          type: string
-          example: password123
     EmailCheckDto:
       required:
         - authNum
@@ -226,3 +219,12 @@ components:
         authNum:
           type: string
           example: '123456'
+    LoginRequestDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: user123
+        password:
+          type: string
+          example: password123
